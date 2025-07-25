@@ -1,0 +1,30 @@
+{
+  "user": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
+  "monitoring": {
+    "directories": [
+      "C:/Users/kpy/PycharmProjects",
+      "D:/Projects"
+    ],
+    "exclude_patterns": [
+      "*/node_modules/*",
+      "*/venv/*",
+      "*/.*cache*",
+      "*/temp/*"
+    ],
+    "recursive": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "git_monitor.log",
+    "max_size_mb": 10,
+    "backup_count": 5
+  },
+  "behavior": {
+    "auto_add_user": true,
+    "backup_original": true,
+    "notification": true
+  }
+}
