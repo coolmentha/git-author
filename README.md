@@ -61,10 +61,24 @@ cp config.example.json config.json
 
 ## 使用方法
 
-### 启动监控器
+### 方式一：直接运行Python脚本
 
 ```bash
 python git_monitor.py
+```
+
+### 方式二：使用启动脚本（推荐）
+
+项目提供了 `start_monitor.bat` 启动脚本，具有以下优势：
+- ✅ **环境检查**：自动检查Python安装和依赖包
+- ✅ **配置验证**：自动检查config.json文件是否存在
+- ✅ **依赖安装**：自动安装缺失的依赖包
+- ✅ **错误处理**：完善的错误检查和提示机制
+
+**Windows系统**：
+```cmd
+# 双击运行或在命令行执行
+start_monitor.bat
 ```
 
 ### 程序运行流程
@@ -99,8 +113,9 @@ NSSM是一个免费的Windows服务管理工具，可以将任何可执行程序
 
 ### 注册为Windows服务
 
-#### 方法一：使用NSSM GUI界面
+#### 方法一：使用Python文件直接注册
 
+**使用GUI方式**：
 1. **打开NSSM GUI**
    ```cmd
    # 以管理员身份运行命令提示符
@@ -114,7 +129,7 @@ NSSM是一个免费的Windows服务管理工具，可以将任何可执行程序
      ```
    - **Startup directory**: 设置为项目目录
      ```
-     C:\Users\kpy\PycharmProjects\git-author
+     C:\path\to\your\git-author
      ```
    - **Arguments**: 设置启动参数
      ```
@@ -127,16 +142,15 @@ NSSM是一个免费的Windows服务管理工具，可以将任何可执行程序
    - **Description**: `自动监控Git仓库并配置用户信息`
    - **Startup type**: `Automatic`
 
-#### 方法二：使用命令行
-
+**使用命令行方式**：
 ```cmd
 # 以管理员身份运行命令提示符
 
 # 注册服务
 C:\nssm\win64\nssm.exe install GitMonitor C:\Python\python.exe
 
-# 设置启动目录
-C:\nssm\win64\nssm.exe set GitMonitor AppDirectory "C:\Users\kpy\PycharmProjects\git-author"
+# 设置启动目录（请修改为实际项目路径）
+C:\nssm\win64\nssm.exe set GitMonitor AppDirectory "C:\path\to\your\git-author"
 
 # 设置启动参数
 C:\nssm\win64\nssm.exe set GitMonitor AppParameters git_monitor.py
@@ -150,6 +164,54 @@ C:\nssm\win64\nssm.exe set GitMonitor Description "自动监控Git仓库并配�
 # 设置自动启动
 C:\nssm\win64\nssm.exe set GitMonitor Start SERVICE_AUTO_START
 ```
+
+#### 方法二：使用现有的start_monitor.bat文件（推荐）
+
+项目已经提供了`start_monitor.bat`启动脚本，可以直接使用NSSM将此批处理文件注册为服务：
+
+**使用GUI方式**：
+1. 以管理员身份运行命令提示符
+2. 执行：`C:\nssm\win64\nssm.exe install GitMonitor`
+3. 在弹出的配置界面中设置：
+   - **Application Path**: `C:\Windows\System32\cmd.exe`
+   - **Startup directory**: `C:\path\to\your\git-author`
+   - **Arguments**: `/c start_monitor.bat`
+   - **Display name**: `Git配置监控器`
+   - **Description**: `自动监控Git仓库并配置用户信息`
+
+**使用命令行方式**：
+```cmd
+# 以管理员身份运行命令提示符
+
+# 注册服务，使用cmd.exe执行bat文件
+C:\nssm\win64\nssm.exe install GitMonitor C:\Windows\System32\cmd.exe
+
+# 设置启动目录为项目目录（请修改为实际项目路径）
+C:\nssm\win64\nssm.exe set GitMonitor AppDirectory "C:\path\to\your\git-author"
+
+# 设置启动参数，使用/c参数执行bat文件后关闭cmd窗口
+C:\nssm\win64\nssm.exe set GitMonitor AppParameters "/c start_monitor.bat"
+
+# 设置服务显示名称
+C:\nssm\win64\nssm.exe set GitMonitor DisplayName "Git配置监控器"
+
+# 设置服务描述
+C:\nssm\win64\nssm.exe set GitMonitor Description "自动监控Git仓库并配置用户信息"
+
+# 设置自动启动
+C:\nssm\win64\nssm.exe set GitMonitor Start SERVICE_AUTO_START
+
+# 设置服务日志输出（可选）
+C:\nssm\win64\nssm.exe set GitMonitor AppStdout "C:\path\to\your\git-author\service_stdout.log"
+C:\nssm\win64\nssm.exe set GitMonitor AppStderr "C:\path\to\your\git-author\service_stderr.log"
+```
+
+**使用start_monitor.bat的优势**：
+- ✅ **环境检查**：自动检查Python安装和依赖包
+- ✅ **配置验证**：自动检查config.json文件是否存在
+- ✅ **依赖安装**：自动安装缺失的依赖包
+- ✅ **错误处理**：完善的错误检查和提示机制
+- ✅ **中文支持**：UTF-8编码支持中文显示
 
 ### 服务管理操作
 
@@ -219,17 +281,17 @@ NSSM支持重定向程序的输出到日志文件：
 
 ```cmd
 # 设置标准输出日志
-C:\nssm\win64\nssm.exe set GitMonitor AppStdout "C:\Users\kpy\PycharmProjects\git-author\service_stdout.log"
+C:\nssm\win64\nssm.exe set GitMonitor AppStdout "C:\path\to\your\git-author\service_stdout.log"
 
 # 设置错误输出日志
-C:\nssm\win64\nssm.exe set GitMonitor AppStderr "C:\Users\kpy\PycharmProjects\git-author\service_stderr.log"
+C:\nssm\win64\nssm.exe set GitMonitor AppStderr "C:\path\to\your\git-author\service_stderr.log"
 
 # 设置日志轮转（可选）
 C:\nssm\win64\nssm.exe set GitMonitor AppStdoutCreationDisposition 4
 C:\nssm\win64\nssm.exe set GitMonitor AppStderrCreationDisposition 4
 ```
 
-### 故障排除
+### Windows服务故障排除
 
 #### 常见问题
 
@@ -256,7 +318,7 @@ C:\nssm\win64\nssm.exe set GitMonitor AppStderrCreationDisposition 4
 1. **手动测试**
    ```cmd
    # 切换到项目目录
-   cd "C:\Users\kpy\PycharmProjects\git-author"
+   cd "C:\path\to\your\git-author"
 
    # 手动运行程序
    python git_monitor.py
@@ -302,7 +364,7 @@ C:\nssm\win64\nssm.exe set GitMonitor AppStderrCreationDisposition 4
 3. **排除规则**: 合理配置排除规则，避免监控不必要的目录
 4. **资源占用**: 监控大量目录可能会占用一定的系统资源
 
-## 故障排除
+## 应用程序故障排除
 
 ### 常见问题
 
