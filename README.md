@@ -78,6 +78,206 @@ python git_monitor.py
 
 按 `Ctrl+C` 停止监控程序。
 
+## Windows服务注册
+
+为了让Git配置监控器在Windows系统启动时自动运行，可以使用NSSM（Non-Sucking Service Manager）将其注册为Windows服务。
+
+### 什么是NSSM
+
+NSSM是一个免费的Windows服务管理工具，可以将任何可执行程序注册为Windows服务，支持自动启动、崩溃重启等功能。
+
+### 下载和安装NSSM
+
+1. **下载NSSM**
+   - 访问官网：https://nssm.cc/download
+   - 下载最新版本的NSSM压缩包
+   - 解压到任意目录（建议：`C:\nssm`）
+
+2. **添加到系统PATH**（可选）
+   - 将NSSM目录添加到系统环境变量PATH中
+   - 或者直接使用完整路径调用NSSM
+
+### 注册为Windows服务
+
+#### 方法一：使用NSSM GUI界面
+
+1. **打开NSSM GUI**
+   ```cmd
+   # 以管理员身份运行命令提示符
+   C:\nssm\win64\nssm.exe install GitMonitor
+   ```
+
+2. **配置服务参数**
+   - **Application Path**: 选择Python解释器路径
+     ```
+     C:\Python\python.exe
+     ```
+   - **Startup directory**: 设置为项目目录
+     ```
+     C:\Users\kpy\PycharmProjects\git-author
+     ```
+   - **Arguments**: 设置启动参数
+     ```
+     git_monitor.py
+     ```
+
+3. **高级配置**（可选）
+   - 切换到"Details"标签页
+   - **Display name**: `Git配置监控器`
+   - **Description**: `自动监控Git仓库并配置用户信息`
+   - **Startup type**: `Automatic`
+
+#### 方法二：使用命令行
+
+```cmd
+# 以管理员身份运行命令提示符
+
+# 注册服务
+C:\nssm\win64\nssm.exe install GitMonitor C:\Python\python.exe
+
+# 设置启动目录
+C:\nssm\win64\nssm.exe set GitMonitor AppDirectory "C:\Users\kpy\PycharmProjects\git-author"
+
+# 设置启动参数
+C:\nssm\win64\nssm.exe set GitMonitor AppParameters git_monitor.py
+
+# 设置服务显示名称
+C:\nssm\win64\nssm.exe set GitMonitor DisplayName "Git配置监控器"
+
+# 设置服务描述
+C:\nssm\win64\nssm.exe set GitMonitor Description "自动监控Git仓库并配置用户信息"
+
+# 设置自动启动
+C:\nssm\win64\nssm.exe set GitMonitor Start SERVICE_AUTO_START
+```
+
+### 服务管理操作
+
+#### 启动服务
+```cmd
+# 方法1：使用NSSM
+C:\nssm\win64\nssm.exe start GitMonitor
+
+# 方法2：使用Windows服务管理
+net start GitMonitor
+
+# 方法3：使用PowerShell
+Start-Service GitMonitor
+```
+
+#### 停止服务
+```cmd
+# 方法1：使用NSSM
+C:\nssm\win64\nssm.exe stop GitMonitor
+
+# 方法2：使用Windows服务管理
+net stop GitMonitor
+
+# 方法3：使用PowerShell
+Stop-Service GitMonitor
+```
+
+#### 重启服务
+```cmd
+# 使用NSSM
+C:\nssm\win64\nssm.exe restart GitMonitor
+
+# 使用PowerShell
+Restart-Service GitMonitor
+```
+
+#### 查看服务状态
+```cmd
+# 使用NSSM
+C:\nssm\win64\nssm.exe status GitMonitor
+
+# 使用Windows服务管理
+sc query GitMonitor
+
+# 使用PowerShell
+Get-Service GitMonitor
+```
+
+#### 编辑服务配置
+```cmd
+# 打开NSSM配置界面
+C:\nssm\win64\nssm.exe edit GitMonitor
+```
+
+#### 删除服务
+```cmd
+# 首先停止服务
+C:\nssm\win64\nssm.exe stop GitMonitor
+
+# 删除服务
+C:\nssm\win64\nssm.exe remove GitMonitor confirm
+```
+
+### 服务日志配置
+
+NSSM支持重定向程序的输出到日志文件：
+
+```cmd
+# 设置标准输出日志
+C:\nssm\win64\nssm.exe set GitMonitor AppStdout "C:\Users\kpy\PycharmProjects\git-author\service_stdout.log"
+
+# 设置错误输出日志
+C:\nssm\win64\nssm.exe set GitMonitor AppStderr "C:\Users\kpy\PycharmProjects\git-author\service_stderr.log"
+
+# 设置日志轮转（可选）
+C:\nssm\win64\nssm.exe set GitMonitor AppStdoutCreationDisposition 4
+C:\nssm\win64\nssm.exe set GitMonitor AppStderrCreationDisposition 4
+```
+
+### 故障排除
+
+#### 常见问题
+
+1. **服务无法启动**
+   - 检查Python路径是否正确
+   - 确保项目目录路径正确
+   - 验证config.json文件是否存在
+   - 检查文件权限
+
+2. **服务启动后立即停止**
+   - 查看Windows事件日志
+   - 检查NSSM重定向的日志文件
+   - 确认Python脚本可以正常运行
+
+3. **权限问题**
+   - 确保服务运行账户有足够权限
+   - 可以设置服务使用特定用户账户运行：
+   ```cmd
+   C:\nssm\win64\nssm.exe set GitMonitor ObjectName ".\username" "password"
+   ```
+
+#### 调试步骤
+
+1. **手动测试**
+   ```cmd
+   # 切换到项目目录
+   cd "C:\Users\kpy\PycharmProjects\git-author"
+
+   # 手动运行程序
+   python git_monitor.py
+   ```
+
+2. **查看服务日志**
+   - 检查service_stdout.log和service_stderr.log
+   - 查看git_monitor.log应用程序日志
+
+3. **Windows事件日志**
+   - 打开"事件查看器"
+   - 查看"Windows日志" > "系统"
+   - 搜索与GitMonitor相关的事件
+
+### 服务配置最佳实践
+
+1. **环境变量**：如果程序依赖特定环境变量，可以通过NSSM设置
+2. **工作目录**：确保AppDirectory设置正确
+3. **自动重启**：配置服务在崩溃时自动重启
+4. **日志管理**：定期清理日志文件，避免磁盘空间不足
+
 ## 工作原理
 
 1. **目录监控**: 使用watchdog库监控指定目录的文件系统事件
